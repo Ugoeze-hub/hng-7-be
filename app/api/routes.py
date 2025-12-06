@@ -7,10 +7,10 @@ from app.services.llm_analysis import LLMAnalysisService
 from app.database.repository import DocumentRepository
 from app.config import get_settings
 import os
+import uuid
 
 router = APIRouter()
 
-# Service instances
 storage_service = StorageService()
 text_service = TextExtractionService()
 llm_service = LLMAnalysisService()
@@ -27,7 +27,6 @@ async def upload_document(
 ):
     """Upload a PDF document for processing."""
     
-    # Validate file extension
     file_ext = os.path.splitext(file.filename)[1].lower()
     if file_ext not in settings.allowed_extensions:
         raise HTTPException(
@@ -35,7 +34,6 @@ async def upload_document(
             detail=f"Only {', '.join(settings.allowed_extensions)} files are supported"
         )
     
-    # Read and validate file size
     file_content = await file.read()
     file_size = len(file_content)
     
@@ -45,15 +43,13 @@ async def upload_document(
             detail=f"File size exceeds {settings.max_file_size / (1024*1024)}MB limit"
         )
     
-    # Extract text
+   
     extracted_text = text_service.extract_from_pdf(file_content)
     
-    # Generate S3 key and upload
     doc_id = str(uuid.uuid4())
     s3_key = f"documents/{doc_id}/{file.filename}"
     storage_service.upload_file(file_content, s3_key)
-    
-    # Save to database
+
     doc_info = doc_repository.create_document(
         filename=file.filename,
         file_size=file_size,
@@ -81,10 +77,8 @@ async def analyze_document(id: str):
             detail="No text available for analysis"
         )
     
-    # Analyze with LLM
-    analysis = await llm_service.analyze_text(doc.extracted_text)
-    
-    # Update database
+
+    analysis = await llm_service.analyze_text(doc.extracted_text) 
     doc_repository.update_analysis(id, analysis)
     
     return analysis
@@ -127,10 +121,10 @@ async def delete_document(id: str):
             detail="Document not found"
         )
     
-    # Delete from S3
+ 
     storage_service.delete_file(doc.s3_key)
     
-    # Delete from database
+
     doc_repository.delete_document(id)
     
     return None

@@ -33,7 +33,6 @@ class DocumentRepository:
         if not doc:
             return None
         
-        # Convert analysis dict to model if present
         if doc["analysis"]:
             doc = doc.copy()
             doc["analysis"] = AnalysisResult(**doc["analysis"])
@@ -54,7 +53,6 @@ class DocumentRepository:
         total = len(docs)
         paginated = docs[skip:skip + limit]
         
-        # Convert analysis dicts to models
         result = []
         for doc in paginated:
             doc = doc.copy()

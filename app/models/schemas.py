@@ -1,7 +1,6 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 from typing import Optional, Dict, Any
 from enum import Enum
-from datetime import datetime
 
 class DocumentType(str, Enum):
     INVOICE = "invoice"

@@ -5,23 +5,23 @@ class Settings(BaseSettings):
     app_name: str = "Document Analysis Service"
     debug: bool = False
     
-    s3_bucket: str = "documents-bucket"
-    s3_endpoint: str = "http://localhost:9000"
-    aws_access_key: str = "minioadmin"
-    aws_secret_key: str = "minioadmin"
+    s3_bucket: str 
+    s3_endpoint: str
+    aws_access_key: str 
+    aws_secret_key: str 
   
     openrouter_api_key: str
     openrouter_url: str 
     openrouter_model: str
     
  
-    max_file_size: int = 5 * 1024 * 1024  # 5MB
-    allowed_extensions: list = [".pdf"]
+    max_file_size: int
+    allowed_extensions: list 
 
-    llm_timeout: int = 60
-    llm_max_tokens: int = 1000
-    llm_temperature: float = 0.3
-    text_truncate_length: int = 4000
+    llm_timeout: int 
+    llm_max_tokens: int 
+    llm_temperature: float 
+    text_truncate_length: int 
     
     class Config:
         env_file = ".env"
