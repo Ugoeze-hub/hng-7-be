@@ -2,6 +2,9 @@ import boto3
 from botocore.exceptions import ClientError
 from fastapi import HTTPException, status
 from app.config import get_settings
+import logging
+
+logger = logging.getLogger("__name__")
 
 class StorageService:
     def __init__(self):
@@ -22,7 +25,7 @@ class StorageService:
             try:
                 self.s3_client.create_bucket(Bucket=self.bucket)
             except Exception as e:
-                print(f"Warning: Could not create S3 bucket: {e}")
+                logger.warning("Could not create s3 bucket: {e}")
     
     def upload_file(self, file_content: bytes, key: str) -> str:
         """Upload file to S3/MinIO."""
@@ -45,7 +48,7 @@ class StorageService:
             self.s3_client.delete_object(Bucket=self.bucket, Key=key)
             return True
         except ClientError as e:
-            print(f"Warning: Could not delete from S3: {e}")
+            logger.warning(f"Could not delete from S3: {e}")
             return False
     
     def get_file(self, key: str) -> bytes:

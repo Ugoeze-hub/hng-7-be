@@ -8,6 +8,9 @@ from app.database.repository import DocumentRepository
 from app.config import get_settings
 import os
 import uuid
+import logging
+
+logger = logging.getLogger("__name__")
 
 router = APIRouter()
 
@@ -44,7 +47,7 @@ async def upload_document(
         )
     
    
-    extracted_text = text_service.extract_from_pdf(file_content)
+    extracted_text = text_service.extract_text(file_content, file.filename)
     
     doc_id = str(uuid.uuid4())
     s3_key = f"documents/{doc_id}/{file.filename}"
@@ -57,6 +60,7 @@ async def upload_document(
         extracted_text=extracted_text
     )
     
+    logger.info(f"Uploaded document {file.filename} with ID {doc_info.id}")
     return doc_info
 
 @router.post("/documents/{id}/analyze", response_model=AnalysisResult, 

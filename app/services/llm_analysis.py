@@ -3,6 +3,9 @@ import json
 from fastapi import HTTPException, status
 from app.models.schemas import AnalysisResult, DocumentMetadata
 from app.config import get_settings
+import logging
+
+logger = logging.getLogger("__name__")
 
 class LLMAnalysisService:
     def __init__(self):
@@ -49,7 +52,6 @@ Document text:
     
     def _parse_llm_response(self, content: str) -> dict:
         """Parse LLM JSON response."""
-        # Remove markdown code blocks if present
         if "```json" in content:
             content = content.split("```json")[1].split("```")[0].strip()
         elif "```" in content:
@@ -69,21 +71,30 @@ Document text:
         
         try:
             async with httpx.AsyncClient(timeout=self.settings.llm_timeout) as client:
+                headers={
+                    "Authorization": f"Bearer {self.settings.openrouter_api_key}",
+                    "Content-Type": "application/json",
+                    "HTTP-Referer": "http://localhost:8000",
+                    "X-Title": self.settings.app_name
+                }
+                
                 response = await client.post(
                     self.settings.openrouter_url,
-                    headers={
-                        "Authorization": f"Bearer {self.settings.openrouter_api_key}",
-                        "Content-Type": "application/json",
-                        "HTTP-Referer": "http://localhost:8000",
-                        "X-Title": self.settings.app_name
-                    },
+                    headers=headers,
                     json={
-                        "model": self.settings.openrouter_model,
-                        "messages": [{"role": "user", "content": prompt}],
-                        "temperature": self.settings.llm_temperature,
-                        "max_tokens": self.settings.llm_max_tokens
-                    }
-                )
+                    "model": self.settings.openrouter_model,
+                    "messages": [{"role": "user", "content": prompt}],
+                    "temperature": self.settings.llm_temperature,
+                    "max_tokens": self.settings.llm_max_tokens
+                }   
+                )  
+
+                if response.status_code == 401:
+                    logger.warning("API key rejected") 
+                    raise HTTPException(
+                        status_code=status.HTTP_401_UNAUTHORIZED,
+                        detail=f"LLM API error: {response.text}"
+                    )   
                 
                 if response.status_code != 200:
                     raise HTTPException(
@@ -92,6 +103,11 @@ Document text:
                     )
                 
                 result = response.json()
+                if "choices" not in result or not result["choices"]:
+                    raise HTTPException(
+                        status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                        detail="LLM returned empty response"
+                    )
                 content = result["choices"][0]["message"]["content"]
                 parsed = self._parse_llm_response(content)
                 

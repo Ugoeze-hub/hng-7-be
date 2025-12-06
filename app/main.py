@@ -3,14 +3,35 @@ from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 from app.api.routes import router, storage_service
 from app.config import get_settings
+import sys
+import logging
+
+def setup_logging():
+    """Configure logging for the application."""
+    logging.basicConfig(
+        level=logging.INFO,
+        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+        handlers=[
+            logging.StreamHandler(sys.stdout), 
+        ]
+    )
+    
+    logging.getLogger("httpx").setLevel(logging.WARNING)
+    logging.getLogger("botocore").setLevel(logging.WARNING)
+    logging.getLogger("urllib3").setLevel(logging.WARNING)
+    
+    return logging.getLogger(__name__)
+
+logger = setup_logging()
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     settings = get_settings()
-    print(f"Starting {settings.app_name}...")
+    logger.info(f"Starting {settings.app_name}...")
     storage_service.initialize_bucket()
     yield
-    print("Shutting down...")
+    logger.info("Shutting down...")
 
 app = FastAPI(
     title="Document Analysis Service",
