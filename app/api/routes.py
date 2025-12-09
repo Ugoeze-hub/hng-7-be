@@ -1,3 +1,4 @@
+from datetime import datetime, timezone
 from fastapi import APIRouter, UploadFile, File, HTTPException, status, Depends
 from typing import List
 from app.models.schemas import DocumentInfo, AnalysisResult, DocumentListResponse
@@ -136,10 +137,10 @@ async def delete_document(id: str):
 @router.get("/health", tags=["System"])
 async def health_check():
     """Health check endpoint."""
-    from datetime import datetime
+
     
     return {
         "status": "healthy",
-        "timestamp": datetime.utcnow().isoformat(),
+        "timestamp": datetime.now(timezone.utc).isoformat(),
         "documents_count": doc_repository.count()
     }

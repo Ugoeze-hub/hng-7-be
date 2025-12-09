@@ -134,8 +134,7 @@ json
     "total_amount": "1500.00",
     "currency": "USD",
     "invoice_number": "INV-2024-001"
-  },
-  "confidence": 0.95
+  }
 }
 3. Get Document
 http

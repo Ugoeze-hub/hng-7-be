@@ -1,6 +1,6 @@
 from typing import Dict, List, Optional
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 from app.models.schemas import DocumentInfo, AnalysisResult
 
 class DocumentRepository:
@@ -18,7 +18,7 @@ class DocumentRepository:
             "id": doc_id,
             "filename": filename,
             "file_size": file_size,
-            "upload_date": datetime.utcnow().isoformat(),
+            "upload_date": datetime.now(timezone.utc).isoformat(),
             "s3_key": s3_key,
             "extracted_text": extracted_text,
             "analysis": None

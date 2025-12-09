@@ -11,23 +11,11 @@ class DocumentType(str, Enum):
     RECEIPT = "receipt"
     OTHER = "other"
 
-class DocumentMetadata(BaseModel):
-    date: Optional[str] = None
-    sender: Optional[str] = None
-    recipient: Optional[str] = None
-    total_amount: Optional[str] = None
-    currency: Optional[str] = None
-    invoice_number: Optional[str] = None
-    company: Optional[str] = None
-    email: Optional[str] = None
-    phone: Optional[str] = None
-    additional_fields: Optional[Dict[str, Any]] = None
 
 class AnalysisResult(BaseModel):
     summary: str
     document_type: DocumentType
-    metadata: DocumentMetadata
-    confidence: Optional[float] = None
+    metadata: Optional[Dict[str, Any]] = None
 
 class DocumentInfo(BaseModel):
     id: str
@@ -37,6 +25,10 @@ class DocumentInfo(BaseModel):
     s3_key: str
     extracted_text: Optional[str] = None
     analysis: Optional[AnalysisResult] = None
+
+class ErrorResponse(BaseModel):
+    error: str = "Failed"
+    detail: Optional[str] = None
 
 class DocumentListResponse(BaseModel):
     total: int
