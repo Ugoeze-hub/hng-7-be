@@ -1,4 +1,4 @@
-# Document Analysis Service - HNG Task 4
+# Document Analysis Service - HNG Task 7
 
 An AI-powered document analysis service that extracts text from PDF/DOCX files, summarizes content, detects document types, and extracts metadata using OpenRouter LLM with MinIO/S3 storage.
 
